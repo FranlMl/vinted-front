@@ -1,38 +1,61 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import "./App.css";
+// Import Pages:
+
+
+import Home from "./pages/Home";
+import Offer from "./pages/Offer";
+
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+
+import Publish from "./pages/Publish";
+
+// Import Components :
+
+import Header from "./components/Header";
+
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+
+import Cookies from "js-cookie";
+import { useState } from "react";
+
+import "./App.scss";
 
 function App() {
-  const [data, setData] = useState();
-  const [isLoading, setIsLoading] = useState(true);
+  const [userToken, setUserToken] = useState(Cookies.get("userToken") || null);
 
-  //const affi = []
+  const handleToken = (token) => {
+    if (token !== null) {
+      Cookies.set("userToken", token, { expires: 7 });
+    } else {
+      Cookies.remove("userToken");
+    }
+    setUserToken(token);
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          "https://lereacteur-vinted-api.herokuapp.com/offers"
-        );
+  return (
 
-        setData(response.data);
-
-        setIsLoading(false);
-      } catch (error) {
-        console.log(error.data);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  return isLoading === true ? (
-    <div> Is Still loading</div>
-  ) : (
     <div className="App">
-      <h1>Test</h1>
 
-      {data.offers}
+      <Router>
+
+        <Header handleToken={handleToken} token={userToken} />
+
+        <Routes>
+
+          <Route path="/home" element={<Home />} />
+
+          <Route path="/offer/:id" element={<Offer />} />
+          
+          <Route path="/signup" element={<Signup handleToken={handleToken} />}/>
+
+          <Route path="/login" element={<Login handleToken={handleToken} />} />
+
+          <Route path="/publish" element={<Publish token={userToken} />} />
+
+        </Routes>
+
+      </Router>
+
     </div>
   );
 }
